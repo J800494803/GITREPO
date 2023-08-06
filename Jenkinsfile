@@ -4,7 +4,7 @@ pipeline {
   stage('Docker Build and Tag') {
            steps {
               
-                sh 'docker build -t ubuntu:latest .' 
+                sh 'docker build -t ubuntu .' 
                 sh 'docker tag ubuntu nikhilnidhi/ubuntu:latest'
                 sh 'docker tag ubuntu nikhilnidhi/ubuntu:$BUILD_NUMBER'
                
