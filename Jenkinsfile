@@ -3,7 +3,7 @@ pipeline {
  stages {
   stage('Docker Build and Tag') {
            steps {
-              
+                sh usermod –aG docker ec2-user
                 sh 'docker build -t ubuntu .' 
                 sh 'docker tag ubuntu nikhilnidhi/ubuntu:latest'
                 sh 'docker tag ubuntu nikhilnidhi/ubuntu:$BUILD_NUMBER'
@@ -25,7 +25,7 @@ pipeline {
       stage('Run Docker container on Jenkins Agent') {
              
             steps {
-                  sh "Sudo usermod –aG docker ec2-user"
+                
                 sh "docker run -d -p 4030:80 nikhilnidhi/ubuntu"
  
             }
