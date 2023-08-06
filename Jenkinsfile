@@ -5,8 +5,8 @@ pipeline {
            steps {
               
                 sh 'docker build -t ubuntu:latest .' 
-                sh 'docker tag ubuntu nikhilnidhi/nginxtest:latest'
-                sh 'docker tag ubuntu nikhilnidhi/nginxtest:$BUILD_NUMBER'
+                sh 'docker tag ubuntu nikhilnidhi/ubuntu:latest'
+                sh 'docker tag ubuntu nikhilnidhi/ubuntu:$BUILD_NUMBER'
                
           }
         }
@@ -15,8 +15,8 @@ pipeline {
           
             steps {
         withDockerRegistry([ credentialsId: "dockerHub", url: "" ]) {
-          sh  'docker push nikhilnidhi/nginxtest:latest'
-          sh  'docker push nikhilnidhi/nginxtest:$BUILD_NUMBER' 
+          sh  'docker push nikhilnidhi/ubuntu:latest'
+          sh  'docker push nikhilnidhi/ubuntu:$BUILD_NUMBER' 
         }
                   
           }
@@ -25,6 +25,7 @@ pipeline {
       stage('Run Docker container on Jenkins Agent') {
              
             steps {
+                  sh "Sudo usermod –aG docker ec2-user"
                 sh "docker run -d -p 4030:80 nikhilnidhi/ubuntu"
  
             }
