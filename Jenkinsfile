@@ -1,41 +1,29 @@
 pipeline {
-    agent any
- stages {
-  stage('Docker Build and Tag') {
-           steps {
-                sh usermod –aG docker ec2-user
-                sh 'docker build -t ubuntu .' 
-                sh 'docker tag ubuntu nikhilnidhi/ubuntu:latest'
-                sh 'docker tag ubuntu nikhilnidhi/ubuntu:$BUILD_NUMBER'
-               
-          }
+	agent none  stages {
+  	stage('Maven Install') {
+    	agent {
+      	docker {
+        	image 'maven:3.5.0'
         }
-     
-  stage('Publish image to Docker Hub') {
-          
-            steps {
-        withDockerRegistry([ credentialsId: "dockerHub", url: "" ]) {
-          sh  'docker push nikhilnidhi/ubuntu:latest'
-          sh  'docker push nikhilnidhi/ubuntu:$BUILD_NUMBER' 
-        }
-                  
-          }
-        }
-     
-      stage('Run Docker container on Jenkins Agent') {
-             
-            steps {
-                
-                sh "docker run -d -p 4030:80 nikhilnidhi/ubuntu"
- 
-            }
-        }
- stage('Run Docker container on remote hosts') {
-             
-            steps {
-                sh "docker -H ssh://jenkins@172.31.86.135  run -d -p 4001:80 nikhilnidhi/ubuntu"
- 
-            }
-        }
+      }
+      steps {
+      	sh 'mvn clean install'
+      }
     }
+    stage('Docker Build') {
+    	agent any
+      steps {
+      	sh 'docker build -t shanem/spring-petclinic:latest .'
+      }
+    }
+    stage('Docker Push') {
+    	agent any
+      steps {
+      	withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+        	sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+          sh 'docker push shanem/spring-petclinic:latest'
+        }
+      }
+    }
+  }
 }
